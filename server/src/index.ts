@@ -275,7 +275,7 @@ app.post("/tracking/status/update" , async (req, res) => {
 
 // Call Python QR service
 async function callPythonReadQR(): Promise<{ qr_text: string }> {
-  const res = await fetch("http://127.0.0.1:5000/readQR", {
+  const res = await fetch(path.join(process.env.QR_SERVER || "http://localhost:5000", "readQR"), {
     method: "POST",
   });
   if (!res.ok) throw new Error(`Python server error: ${res.statusText}`);
