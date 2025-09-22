@@ -14,6 +14,9 @@ import {
   getTrackingStatus,
   updateTrackingStatus,
   getDormInfoByTrackingNumber,
+  getUserById,
+  getAllUsers,
+  getAllTracking,
 } from "./db.js";
 // import { use } from "react";
 
@@ -60,6 +63,20 @@ function requireLogin(req: any, res: any, next: any) {
   }
   next();
 }
+
+// === ADMIN CHECK MIDDLEWARE ===
+function requireAdmin(req: any, res: any, next: any) {
+  if (!req.session.userId) {
+    return res.redirect("/login");
+  }
+  getUserById(req.session.userId).then((user) => {
+    if (!user || user.role !== "admin") {
+      return res.status(403).send("Forbidden: Admins only");
+    }
+    next();
+  });
+}
+
 
 // === PAGES ===
 app.get("/", requireLogin, (req, res) => {
@@ -177,9 +194,11 @@ app.post("/tracking_number", requireLogin, async (req, res) => {
 });
 
 
-app.get("/me", requireLogin, (req, res) => {
-  res.json({ user: { id: req.session.userId } });
+app.get("/me", requireLogin, async (req, res) => {
+  const user = await getUserById(req.session.userId!);
+  res.json({ user: { id: user.id, username: user.username, dorm: user.dorm_number } });
 });
+
 
 // === LOGOUT ===
 // No requireLogin middleware here, so it can be accessed even with a logged-out session
@@ -317,6 +336,24 @@ app.post("/readQR", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+app.get("/admin", requireAdmin, async (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "admin.html"));
+});
+
+// API สำหรับดึงข้อมูล users + tracking
+app.get("/api/admin/users", requireAdmin, async (req, res) => {
+  const users = await getAllUsers();
+  res.json(users);
+});
+
+app.get("/api/admin/tracking", requireAdmin, async (req, res) => {
+  const tracking = await getAllTracking();
+  res.json(tracking);
+});
+
+
 
 
 

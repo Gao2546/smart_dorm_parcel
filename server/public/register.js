@@ -26,7 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Get form data
     const username = form.querySelector('input[name="username"]').value.trim();
     const password = form.querySelector('input[name="password"]').value.trim();
-    const dorm = form.querySelector('input[name="dorm"]').value.trim();
+    // const dorm = form.querySelector('input[name="dorm"]').value.trim();
+    const dorm = form.querySelector('select[name="dorm"]').value.trim();
 
     if (!username || !password || !dorm) {
       showMessage("Please fill in all fields", true); // Use showMessage for errors

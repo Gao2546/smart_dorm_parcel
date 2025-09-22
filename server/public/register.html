@@ -13,7 +13,12 @@
       <form class="register-form" method="POST" action="/register">
         <input type="text" name="username" placeholder="Username" required>
         <input type="password" name="password" placeholder="Password" required>
-        <input type="text" name="dorm" placeholder="Dorm Number" required>
+        <select name="dorm" required>
+          <option value="">-- Select Dorm --</option>
+          <option value="2">Dorm 2</option>
+          <option value="6">Dorm 6</option>
+          <option value="10">Dorm 10</option>
+        </select>
         <button type="submit">Register</button>
       </form>
       <p class="muted" id="message-area"></p>

@@ -1,6 +1,7 @@
 // db.ts
 import pkg from "pg";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -58,25 +59,26 @@ async function initDB() {
 
   // === CREATE TABLES ===
   const createUsersTable = `
-  CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    dorm_number VARCHAR(50) NOT NULL
-  );
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      username VARCHAR(255) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      dorm_number VARCHAR(50) NOT NULL
+    );
   `;
 
- const createTrackingTable = `
-  CREATE TABLE IF NOT EXISTS tracking_numbers (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    tracking_number VARCHAR(255) UNIQUE NOT NULL, -- make unique
-    status VARCHAR(50) DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-`;
-
+  const createTrackingTable = `
+    CREATE TABLE IF NOT EXISTS tracking_numbers (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      tracking_number VARCHAR(255) NOT NULL,
+      status VARCHAR(50) DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      CONSTRAINT unique_user_tracking UNIQUE (user_id, tracking_number) -- กัน user เดียวกันเพิ่มเลขซ้ำ
+    );
+  `;
 
   try {
     await pool.query(createUsersTable);
@@ -84,6 +86,9 @@ async function initDB() {
 
     await pool.query(createTrackingTable);
     console.log("✅ Tracking numbers table ready");
+
+    // Create admin user after tables are ready and pool is initialized
+    await createAdmin(pool);
   } catch (err) {
     console.error("❌ Error creating tables:", err);
   }
@@ -106,6 +111,27 @@ export async function createUser(
   `;
   const result = await pool.query(query, [username, password, dormNumber]);
   return result.rows[0];
+}
+
+
+// === CREATE ADMIN USER IF NOT EXISTS ===
+async function createAdmin(pool: pkg.Pool) {
+  const username = "admin";
+  const password = "admin"; // plaintext
+  const dorm = "0"; // admin ไม่ต้องมีหอ
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const check = await pool.query("SELECT * FROM users WHERE username=$1", [username]);
+  if (check.rows.length === 0) {
+    await pool.query(
+      "INSERT INTO users (username, password, dorm_number) VALUES ($1, $2, $3)",
+      [username, hashedPassword, dorm]
+    );
+    console.log("✅ Admin user created (username=admin, password=admin)");
+  } else {
+    console.log("ℹ️ Admin user already exists");
+  }
 }
 
 export async function getUserByUsername(username: string) {
@@ -196,6 +222,30 @@ export async function getDormInfoByTrackingNumber(trackingNumber: string) {
   const result = await pool.query(query, [trackingNumber]);
   return result.rows[0]; // { username, dorm_number } or undefined
 }
+
+export async function getAllUsers() {
+  const query = `SELECT id, username, dorm_number, role FROM users ORDER BY id`;
+  const result = await pool.query(query);
+  return result.rows;
+}
+
+export async function getAllTracking() {
+  const query = `
+    SELECT tn.id, tn.tracking_number, tn.status, tn.created_at, u.username, u.dorm_number
+    FROM tracking_numbers tn
+    JOIN users u ON tn.user_id = u.id
+    ORDER BY tn.created_at DESC
+  `;
+  const result = await pool.query(query);
+  return result.rows;
+}
+
+export async function getUserById(id: number) {
+  const query = `SELECT * FROM users WHERE id = $1`;
+  const result = await pool.query(query, [id]);
+  return result.rows[0];
+}
+
 
 
 export { pool };

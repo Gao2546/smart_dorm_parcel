@@ -20,22 +20,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // === FETCH USER ===
   async function fetchUser() {
-    try {
-      const res = await fetch("/me");
-      if (res.redirected) {
-        window.location.href = res.url;
-        return;
-      }
-      if (res.ok) {
-        const data = await res.json();
-        userId = data.user.id;
-        await loadTrackingNumbers();
-        await loadDarkMode(); // ✅ load dark mode when user loads
-      }
-    } catch (err) {
-      console.error("Could not fetch user:", err);
+  try {
+    const res = await fetch("/me");
+    if (res.redirected) {
+      window.location.href = res.url;
+      return;
     }
+    if (res.ok) {
+      const data = await res.json();
+      userId = data.user.id;
+
+      // ✅ แสดงเลขหอพัก
+      const dormElement = document.createElement("p");
+      dormElement.textContent = `🏠 Dorm Number: ${data.user.dorm}`;
+      document.querySelector(".header").appendChild(dormElement);
+
+      await loadTrackingNumbers();
+      await loadDarkMode();
+    }
+  } catch (err) {
+    console.error("Could not fetch user:", err);
   }
+}
+
 
   // === LOAD DARK MODE FROM SESSION ===
   async function loadDarkMode() {
