@@ -63,7 +63,8 @@ async function initDB() {
       id SERIAL PRIMARY KEY,
       username VARCHAR(255) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL,
-      dorm_number VARCHAR(50) NOT NULL
+      dorm_number VARCHAR(50) NOT NULL,
+      role VARCHAR(50) DEFAULT 'user'
     );
   `;
 
@@ -104,14 +105,16 @@ export async function createUser(
   password: string,
   dormNumber: string
 ) {
+  const hashedPassword = await bcrypt.hash(password, 10); // ✅ hash ก่อนเก็บ
   const query = `
     INSERT INTO users (username, password, dorm_number)
     VALUES ($1, $2, $3)
     RETURNING id, username, dorm_number
   `;
-  const result = await pool.query(query, [username, password, dormNumber]);
+  const result = await pool.query(query, [username, hashedPassword, dormNumber]);
   return result.rows[0];
 }
+
 
 
 // === CREATE ADMIN USER IF NOT EXISTS ===
@@ -125,8 +128,8 @@ async function createAdmin(pool: pkg.Pool) {
   const check = await pool.query("SELECT * FROM users WHERE username=$1", [username]);
   if (check.rows.length === 0) {
     await pool.query(
-      "INSERT INTO users (username, password, dorm_number) VALUES ($1, $2, $3)",
-      [username, hashedPassword, dorm]
+      "INSERT INTO users (username, password, dorm_number, role) VALUES ($1, $2, $3, $4)",
+      [username, hashedPassword, dorm, "admin"]
     );
     console.log("✅ Admin user created (username=admin, password=admin)");
   } else {

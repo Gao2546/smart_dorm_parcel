@@ -36,7 +36,6 @@ body.dark {
 }
 
 /* Card Container */
-/* Card Container */
 .card {
   background: var(--card-light);
   padding: 2rem;

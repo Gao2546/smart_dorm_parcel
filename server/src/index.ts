@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import session from "express-session";
+import bcrypt from "bcrypt";
 
 import {
   createUser,
@@ -122,27 +123,32 @@ app.post("/login", async (req, res) => {
 
   try {
     const user = await getUserByUsername(username);
-
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
 
-    if (user.password !== password) {
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
       return res.status(401).json({ error: "Invalid password" });
     }
 
-    // ✅ Set session
     req.session.userId = user.id;
 
     res.json({
       message: "Login successful",
-      user: { id: user.id, username: user.username, dorm: user.dorm_number },
+      user: {
+        id: user.id,
+        username: user.username,
+        dorm: user.dorm_number,
+        role: user.role,
+      },
     });
   } catch (err: any) {
     console.error("Login error:", err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // === LOGOUT ===
 app.post("/logout", (req, res) => {
