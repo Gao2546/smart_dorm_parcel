@@ -59,10 +59,11 @@ import threading
 import serial
 import json
 import psycopg2
-from qreader import QReader
+from pyzbar.pyzbar import decode
+# from qreader import QReader
 
 # === QR Reader setup ===
-qreader = QReader(model_size='n')
+# qreader = QReader(model_size='n')
 IMAGE_WIDTH = 640 // 2
 IMAGE_HEIGHT = 480 // 2
 cap = cv2.VideoCapture(0)
@@ -98,9 +99,13 @@ def camera_loop():
 
 threading.Thread(target=camera_loop, daemon=True).start()
 
+# def read_qr_code(frame):
+#     decoded_text = qreader.detect_and_decode(frame)
+#     return str(decoded_text[0]) if decoded_text else None
+
 def read_qr_code(frame):
-    decoded_text = qreader.detect_and_decode(frame)
-    return str(decoded_text[0]) if decoded_text else None
+    decoded = decode(frame)
+    return decoded[0].data.decode("utf-8") if decoded else None
 
 def process_qr(qr_text: str) -> int:
     """
