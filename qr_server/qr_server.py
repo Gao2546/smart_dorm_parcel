@@ -64,8 +64,8 @@ from pyzbar.pyzbar import decode
 
 # === QR Reader setup ===
 # qreader = QReader(model_size='n')
-IMAGE_WIDTH = 640 // 2
-IMAGE_HEIGHT = 480 // 2
+IMAGE_WIDTH = 640
+IMAGE_HEIGHT = 480
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, IMAGE_WIDTH)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, IMAGE_HEIGHT)
