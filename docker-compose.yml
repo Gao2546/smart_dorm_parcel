@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: athip
       POSTGRES_PASSWORD: 123456
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data   # ✅ เก็บข้อมูล DB ถาวร
 
   app:
     build:
@@ -28,6 +28,9 @@ services:
       - db
       - qr_server
     restart: unless-stopped
+    volumes:
+      - ./server:/usr/src/app   # ✅ โค้ดใน host -> container
+      - /usr/src/app/node_modules   # ✅ ป้องกันทับ node_modules ใน container
 
   qr_server:
     build:
@@ -35,10 +38,11 @@ services:
     ports:
       - "5000:5000"
     devices:
-      - "/dev/video0:/dev/video0"   # ✅ Give container access to the host camera
+      - "/dev/video0:/dev/video0"
       - "/dev/ttyS0:/dev/ttyS0"
     volumes:
-      - ./qr_server/output:/app/output   # ✅ Map local folder -> container folder
+      - ./qr_server:/app         # ✅ mount โค้ดจาก host
+      - ./qr_server/output:/app/output   # ✅ output mapping
     restart: unless-stopped
 
 volumes:
