@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 480
-qreader = QReader(model_size='s')
+qreader = QReader(model_size='n')
 
 def read_qr_code(frame):
     decoded_text = qreader.detect_and_decode(frame)
