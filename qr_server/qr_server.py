@@ -64,7 +64,7 @@ from pyzbar.pyzbar import decode
 IMAGE_WIDTH = 640 // 2
 IMAGE_HEIGHT = 480 // 2
 
-cap = cv2.VideoCapture(2)  # use correct camera index
+cap = cv2.VideoCapture(0)  # use correct camera index
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, IMAGE_WIDTH)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, IMAGE_HEIGHT)
 
