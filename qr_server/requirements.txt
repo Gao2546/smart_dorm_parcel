@@ -4,3 +4,4 @@ qreader==3.16.0
 numpy==1.26.0
 pyserial==3.5
 pyzbar==0.1.9
+psycopg2==2.9.10
