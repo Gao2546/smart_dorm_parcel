@@ -58,11 +58,14 @@ import cv2
 import threading
 import serial
 import json
-from pyzbar.pyzbar import decode
+# from pyzbar.pyzbar import decode
+from qreader import QReader
+
+qreader = QReader(model_size='n')
 
 # === Camera setup ===
-IMAGE_WIDTH = 640   # use full resolution for better QR detection
-IMAGE_HEIGHT = 480
+IMAGE_WIDTH = 640//2   # use full resolution for better QR detection
+IMAGE_HEIGHT = 480//2
 
 cap = cv2.VideoCapture(0)  # adjust index if needed
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, IMAGE_WIDTH)
@@ -83,11 +86,15 @@ def camera_loop():
 
 threading.Thread(target=camera_loop, daemon=True).start()
 
+# def read_qr_code(frame):
+#     """ Decode QR from frame (use grayscale) """
+#     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#     decoded = decode(gray)
+#     return decoded[0].data.decode("utf-8") if decoded else None
+
 def read_qr_code(frame):
-    """ Decode QR from frame (use grayscale) """
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    decoded = decode(gray)
-    return decoded[0].data.decode("utf-8") if decoded else None
+    decoded_text = qreader.detect_and_decode(frame)
+    return str(decoded_text[0]) if decoded_text else None
 
 print("✅ Raspberry Pi QR Serial Server started...")
 
