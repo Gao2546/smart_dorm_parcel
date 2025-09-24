@@ -150,11 +150,11 @@ while True:
             print(f"⚠️ Serial read error: {e}")
             continue
 
-        try:
-            data = json.loads(cmd)
-        except json.JSONDecodeError:
-            print(f"⚠️ Invalid JSON from ESP32: {cmd}")
-            continue
+        # try:
+        #     data = json.loads(cmd)
+        # except json.JSONDecodeError:
+        #     print(f"⚠️ Invalid JSON from ESP32: {cmd}")
+        #     continue
 
         # if not cmd:
         #     continue
@@ -181,20 +181,20 @@ while True:
             ser.write((json.dumps(response) + "\n").encode())
         
         # === Update status request ===
-        elif data.get("type") == "update_status":
-            tracking_number = data.get("trackingNumber")
-            status = data.get("status")
+        # elif data.get("type") == "update_status":
+        #     tracking_number = data.get("trackingNumber")
+        #     status = data.get("status")
 
-            if tracking_number and status:
-                try:
-                    with conn.cursor() as cur:
-                        cur.execute("""
-                            UPDATE tracking_numbers 
-                            SET status=%s, updated_at=NOW() 
-                            WHERE tracking_number=%s
-                        """, (status, tracking_number))
-                        print(f"✅ Updated {tracking_number} → {status}")
-                except Exception as e:
-                    print(f"❌ DB update error: {e}")
-            else:
-                print("⚠️ Missing fields in update_status request")
+        #     if tracking_number and status:
+        #         try:
+        #             with conn.cursor() as cur:
+        #                 cur.execute("""
+        #                     UPDATE tracking_numbers 
+        #                     SET status=%s, updated_at=NOW() 
+        #                     WHERE tracking_number=%s
+        #                 """, (status, tracking_number))
+        #                 print(f"✅ Updated {tracking_number} → {status}")
+        #         except Exception as e:
+        #             print(f"❌ DB update error: {e}")
+        #     else:
+        #         print("⚠️ Missing fields in update_status request")
