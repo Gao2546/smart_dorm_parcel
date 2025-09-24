@@ -61,16 +61,16 @@ import json
 from pyzbar.pyzbar import decode
 
 # === Camera setup ===
-IMAGE_WIDTH = 640 // 2
-IMAGE_HEIGHT = 480 // 2
+IMAGE_WIDTH = 640   # use full resolution for better QR detection
+IMAGE_HEIGHT = 480
 
-cap = cv2.VideoCapture(0)  # use correct camera index
+cap = cv2.VideoCapture(0)  # adjust index if needed
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, IMAGE_WIDTH)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, IMAGE_HEIGHT)
 
 last_frame = None
 
-# === Serial setup (adjust /dev/ttyUSB0 to match your ESP32 port) ===
+# === Serial setup (adjust to your ESP32 port) ===
 ser = serial.Serial('/dev/ttyS0', 115200, timeout=1)
 
 def camera_loop():
@@ -84,8 +84,9 @@ def camera_loop():
 threading.Thread(target=camera_loop, daemon=True).start()
 
 def read_qr_code(frame):
-    """ Decode QR from frame """
-    decoded = decode(frame)
+    """ Decode QR from frame (use grayscale) """
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    decoded = decode(gray)
     return decoded[0].data.decode("utf-8") if decoded else None
 
 print("✅ Raspberry Pi QR Serial Server started...")
@@ -99,7 +100,15 @@ while True:
             elif last_frame is None:
                 response = {"error": "Failed to capture image"}
             else:
-                qr_text = read_qr_code(last_frame) or "No QR code detected"
-                response = {"qr_text": qr_text}
+                qr_text = read_qr_code(last_frame)
+
+                if not qr_text:
+                    # Save debug image if QR not detected
+                    cv2.imwrite("/app/output/debug_last_frame.jpg", last_frame)
+                    response = {"qr_text": "No QR code detected"}
+                    print("⚠️ No QR detected → saved debug_last_frame.jpg")
+                else:
+                    response = {"qr_text": qr_text}
+                    print(f"✅ QR Detected: {qr_text}")
 
             ser.write((json.dumps(response) + "\n").encode())
