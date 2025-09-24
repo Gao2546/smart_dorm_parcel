@@ -1,5 +1,5 @@
 Flask==2.3.3
 opencv-python
-qreader==3.16.0
+# qreader==3.16.0
 numpy==1.26.0
 pyserial==3.5
