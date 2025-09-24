@@ -156,9 +156,9 @@ while True:
             print(f"⚠️ Invalid JSON from ESP32: {cmd}")
             continue
 
-        if not cmd:
-            continue
-
+        # if not cmd:
+        #     continue
+        
         if cmd == "READ_QR":
             if not cap.isOpened():
                 response = {"error": "Cannot open camera"}
