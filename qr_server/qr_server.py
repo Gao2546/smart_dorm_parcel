@@ -61,19 +61,34 @@ import json
 import psycopg2
 from pyzbar.pyzbar import decode
 from qreader import QReader
+import time
 
 # === QR Reader setup ===
 qreader = QReader(model_size='n')
 IMAGE_WIDTH = 1280
 IMAGE_HEIGHT = 720
-cap = cv2.VideoCapture(0)
+while True:
+    try:
+        cap = cv2.VideoCapture(0)
+        break
+    except Exception as e:
+        print(f"⚠️ Camera init error: {e}, retrying...")
+        time.sleep(2)
+        continue
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, IMAGE_WIDTH)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, IMAGE_HEIGHT)
 last_frame = None
 
 # === Serial setup ===
-ser = serial.Serial('/dev/ttyS0', 115200, timeout=1)
-
+while True:
+    try:
+        ser = serial.Serial('/dev/ttyS0', 115200, timeout=1)
+        break
+    except Exception as e:
+        print(f"⚠️ Serial init error: {e}, retrying...")
+        time.sleep(2)
+        continue
+    
 # === Database setup ===
 DB_HOST = "db"        # Docker service name for Node.js DB
 DB_PORT = 5432
