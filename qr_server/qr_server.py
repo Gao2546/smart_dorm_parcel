@@ -107,7 +107,7 @@ def read_qr_code2(frame):
 
     # Pair decoded text with bbox
     results = [
-        (decoded_qrs[i], detections[i][QReader.BBOX_XYXY])
+        (decoded_qrs[i], detections[i]["bbox_xyxy"][0:2])
         for i in range(len(decoded_qrs))
         if decoded_qrs[i] is not None
     ]
