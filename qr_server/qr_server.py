@@ -100,8 +100,24 @@ def camera_loop():
 threading.Thread(target=camera_loop, daemon=True).start()
 
 def read_qr_code2(frame):
-    decoded_text = qreader.detect_and_decode(frame)
-    return str(decoded_text[-1]) if decoded_text else None
+    """YOLOv7+pyzbar QReader → return right-most QR code text"""
+    decoded_qrs, detections = qreader.detect_and_decode(frame, return_detections=True, is_bgr=True)
+    if not decoded_qrs or not detections:
+        return None
+
+    # Pair decoded text with bbox
+    results = [
+        (decoded_qrs[i], detections[i][QReader.BBOX_XYXY])
+        for i in range(len(decoded_qrs))
+        if decoded_qrs[i] is not None
+    ]
+
+    if not results:
+        return None
+
+    # Pick right-most by bbox[0] (x1 of bounding box)
+    rightmost = max(results, key=lambda item: item[1][0])
+    return rightmost[0]
 
 def read_qr_code1(frame):
     """Use pyzbar → return right-most QR code text"""
