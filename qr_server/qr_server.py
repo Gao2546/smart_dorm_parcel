@@ -88,7 +88,7 @@ while True:
         print(f"⚠️ Serial init error: {e}, retrying...")
         time.sleep(2)
         continue
-
+    
 # === Database setup ===
 DB_HOST = "db"        # Docker service name for Node.js DB
 DB_PORT = 5432
@@ -205,7 +205,7 @@ while True:
                     # Save debug image if QR not detected
                     cv2.imwrite("/app/output/debug_last_frame.jpg", last_frame)
                     print("⚠️ No QR detected → saved debug_last_frame.jpg")
-                cv2.imwrite("/app/output/debug_last_frame.jpg", last_frame)
+
                 response = {"qr_text": qr_text or "No QR code detected", "mapped_label": mapped_label}
                 print(f"📡 QR: {qr_text}, mapped_label: {mapped_label}")
 
