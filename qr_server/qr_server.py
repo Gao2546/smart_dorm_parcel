@@ -101,11 +101,11 @@ threading.Thread(target=camera_loop, daemon=True).start()
 
 def read_qr_code2(frame):
     decoded_text = qreader.detect_and_decode(frame)
-    return str(decoded_text[0]) if decoded_text else None
+    return str(decoded_text[-1]) if decoded_text else None
 
 def read_qr_code1(frame):
     decoded = decode(frame)
-    return decoded[0].data.decode("utf-8") if decoded else None
+    return decoded[-1].data.decode("utf-8") if decoded else None
 
 def process_qr(qr_text: str) -> int:
     """
