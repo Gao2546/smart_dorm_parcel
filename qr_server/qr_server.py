@@ -64,8 +64,8 @@ from qreader import QReader
 
 # === QR Reader setup ===
 qreader = QReader(model_size='n')
-IMAGE_WIDTH = 640
-IMAGE_HEIGHT = 480
+IMAGE_WIDTH = 1280
+IMAGE_HEIGHT = 720
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, IMAGE_WIDTH)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, IMAGE_HEIGHT)
@@ -95,7 +95,7 @@ def camera_loop():
     while True:
         ret, frame = cap.read()
         if ret:
-            last_frame = frame
+            last_frame = frame[:, 0:1050]
 
 threading.Thread(target=camera_loop, daemon=True).start()
 
