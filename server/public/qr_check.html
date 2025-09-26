@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Parcel Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+</head>
+<body>
+  <main>
+    <div class="card">
+      <div class="header">
+        <h1>📦 Parcel QR Check</h1>
+        <button id="toggle-dark" style="margin-left: 15px;">🌙</button>
+        <button id="logout-button" style="margin-left: 15px; margin-right: 15px;">🚪</button>
+      </div>
+
+      <div class="content">
+        <h2>Scan QR Code</h2>
+        <video id="preview" width="300" height="200" autoplay playsinline style="border:1px solid #ccc;"></video>
+        <canvas id="qr-canvas" hidden></canvas>
+        <button id="start-scan">▶ Start Scan</button>
+        <button id="stop-scan">⏹ Stop Scan</button>
+
+        <h2>Or Enter Tracking Number</h2>
+        <input type="text" id="tracking-input" placeholder="Enter tracking number">
+        <button id="check-tracking">Check</button>
+
+        <div id="result" style="margin-top: 20px; font-weight: bold;"></div>
+      </div>
+    </div>
+  </main>
+  <script src="/qr_check.js" defer></script>
+</body>
+</html>

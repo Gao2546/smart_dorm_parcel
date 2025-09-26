@@ -22,6 +22,7 @@
     "express-session": "^1.18.1",
     "fast-xml-parser": "^5.2.5",
     "framer-motion": "^12.23.13",
+    "html5-qrcode": "^2.3.8",
     "jimp": "^1.6.0",
     "lucide-react": "^0.544.0",
     "multer": "^2.0.1",

@@ -84,6 +84,10 @@ app.get("/", requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 });
 
+app.get("/qr_check", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "qr_check.html"));
+});
+
 app.get("/register", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "register.html"));
 });
@@ -258,7 +262,7 @@ app.get("/darkmode", requireLogin, (req, res) => {
 
 
 // === GET TRACKING STATUS (POST) ===
-app.post("/tracking/status", requireLogin, async (req, res) => {
+app.post("/tracking/status", async (req, res) => {
   const { trackingNumber } = req.body;
 
   if (!trackingNumber) {
@@ -266,16 +270,20 @@ app.post("/tracking/status", requireLogin, async (req, res) => {
   }
 
   try {
-    const tracking = await getTrackingStatus(trackingNumber); // implement this in db.ts
-    if (!tracking) {
+    const status = await getTrackingStatus(trackingNumber);
+    const dormInfo = await getDormInfoByTrackingNumber(trackingNumber);
+    console.log("Dorm Info:", dormInfo);
+    console.log("Status:", status);
+    if (!status) {
       return res.status(404).json({ error: "Tracking number not found" });
     }
-    res.json({ trackingNumber, status: tracking.status });
+    res.json({ trackingNumber, status, dormInfo });
   } catch (err: any) {
     console.error("Fetch tracking status error:", err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // === UPDATE TRACKING STATUS (POST) ===
 app.post("/tracking/status/update" , async (req, res) => {

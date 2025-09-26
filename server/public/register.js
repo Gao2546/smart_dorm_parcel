@@ -59,4 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
       showMessage("An error occurred. Check console for details.", true); // Use showMessage for errors
     }
   });
+  // === QR BUTTON ===
+  const qrButton = document.getElementById("qr-button");
+  if (qrButton) {
+    qrButton.addEventListener("click", () => {
+      window.location.href = "/qr_check";
+    });
+  }
 });
