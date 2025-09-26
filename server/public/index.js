@@ -4,6 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const trackingList = document.querySelector(".muted");
   const logoutButton = document.getElementById("logout-button");
   const toggleDarkButton = document.getElementById("toggle-dark");
+  const imgMoonIcon = document.getElementById("moon-icon");
+  const imgLogoutIcon = document.getElementById("logout-icon");
+  const imgQrIcon = document.getElementById("qr-icon");
+
 
   let userId;
 
@@ -11,10 +15,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function applyDarkMode(enabled) {
     if (enabled) {
       document.body.classList.add("dark");
-      toggleDarkButton.textContent = "☀️"; // switch icon to sun
+      imgMoonIcon.src = "/moond.png";
+      imgLogoutIcon.src = "/logoutd.png";
+      imgQrIcon.src = "/qr-coded.png";
     } else {
       document.body.classList.remove("dark");
-      toggleDarkButton.textContent = "🌙"; // switch icon to moon
+      imgMoonIcon.src = "/moon.png";
+      imgLogoutIcon.src = "/logout.png";
+      imgQrIcon.src = "/qr-code.png";
     }
   }
 
@@ -31,9 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
       userId = data.user.id;
 
       // ✅ แสดงเลขหอพัก
-      const dormElement = document.createElement("p");
+      const dormElement = document.getElementsByClassName("dorm-number")[0];
       dormElement.textContent = `🏠 Dorm Number: ${data.user.dorm}`;
-      document.querySelector(".header").appendChild(dormElement);
 
       await loadTrackingNumbers();
       await loadDarkMode();

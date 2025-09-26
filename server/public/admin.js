@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const logoutButton = document.getElementById("logout-button");
   const toggleDarkButton = document.getElementById("toggle-dark");
+  const imgMoonIcon = document.getElementById("moon-icon");
+  const imgLogoutIcon = document.getElementById("logout-icon");
+  const imgQrIcon = document.getElementById("qr-icon");
 
   // === QR BUTTON ===
   const qrButton = document.getElementById("qr-button");
@@ -26,10 +29,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   function applyDarkMode(enabled) {
     if (enabled) {
       document.body.classList.add("dark");
-      toggleDarkButton.textContent = "☀️"; // switch icon to sun
+      imgMoonIcon.src = "/moond.png";
+      imgLogoutIcon.src = "/logoutd.png";
+      imgQrIcon.src = "/qr-coded.png";
     } else {
       document.body.classList.remove("dark");
-      toggleDarkButton.textContent = "🌙"; // switch icon to moon  
+      imgMoonIcon.src = "/moon.png";
+      imgLogoutIcon.src = "/logout.png";
+      imgQrIcon.src = "/qr-code.png";
     }
   }
   

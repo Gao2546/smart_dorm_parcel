@@ -5,6 +5,8 @@ import cors from "cors";
 import path from "path";
 import session from "express-session";
 import bcrypt from "bcrypt";
+import https from "https";
+import fs from "fs";
 
 import {
   createUser,
@@ -28,6 +30,12 @@ declare module "express-session" {
     darkMode?: boolean;
   }
 }
+
+// โหลด cert/key
+const sslOptions = {
+  key: fs.readFileSync(path.join("certs", "server.key")),
+  cert: fs.readFileSync(path.join("certs", "server.cert"))
+};
 
 
 dotenv.config();
@@ -372,7 +380,13 @@ app.get("/api/admin/tracking", requireAdmin, async (req, res) => {
 
 
 // === START SERVER ===
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () =>
+//   console.log(`🚀 Server running at http://localhost:${PORT}`)
+// );
+
+// รัน HTTPS server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`🚀 Server running at http://localhost:${PORT}`)
-);
+https.createServer(sslOptions, app).listen(PORT, () => {
+  console.log(`✅ HTTPS server running at https://localhost:${PORT}`);
+});

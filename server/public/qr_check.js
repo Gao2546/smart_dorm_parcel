@@ -4,15 +4,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkButton = document.getElementById("check-tracking");
   const logoutButton = document.getElementById("logout-button");
   const toggleDarkButton = document.getElementById("toggle-dark");
+  const imgQrIcon = document.getElementById("qr-icon");
+  const imgMoonIcon = document.getElementById("moon-icon");
+  const imgLogoutIcon = document.getElementById("logout-icon");
 
   // === APPLY DARK MODE ===
     function applyDarkMode(enabled) {
     if (enabled) {
       document.body.classList.add("dark");
-      toggleDarkButton.textContent = "☀️"; // switch icon to sun
+      imgQrIcon.src = "/qr-coded.png";
+      imgMoonIcon.src = "/moond.png";
+      imgLogoutIcon.src = "/logoutd.png";
     } else {
       document.body.classList.remove("dark");
-      toggleDarkButton.textContent = "🌙"; // switch icon to moon
+      imgQrIcon.src = "/qr-code.png";
+      imgMoonIcon.src = "/moon.png";
+      imgLogoutIcon.src = "/logout.png";
     }
   }
 
@@ -109,6 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await res.json();
+      resultDiv.style.display = "block";
       resultDiv.textContent =
         `✅ Tracking ${trackingNumber} → Status: ${data.status}, Dorm: ${data.dormInfo?.dorm_number || "N/A"}`;
     } catch (err) {
@@ -128,9 +136,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   startScanBtn.addEventListener("click", async () => {
     try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }
-      });
+      try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" }   // กล้องหลัง
+          });
+        } catch (e) {
+          console.warn("Fallback to any camera:", e);
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        }
       video.srcObject = stream;
       scanning = true;
       requestAnimationFrame(scanLoop);
