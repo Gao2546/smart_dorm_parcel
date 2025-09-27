@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkButton = document.getElementById("check-tracking");
   const logoutButton = document.getElementById("logout-button");
   const toggleDarkButton = document.getElementById("toggle-dark");
-  const imgQrIcon = document.getElementById("qr-icon");
   const imgMoonIcon = document.getElementById("moon-icon");
   const imgLogoutIcon = document.getElementById("logout-icon");
 
@@ -12,12 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
     function applyDarkMode(enabled) {
     if (enabled) {
       document.body.classList.add("dark");
-      imgQrIcon.src = "/qr-coded.png";
       imgMoonIcon.src = "/moond.png";
       imgLogoutIcon.src = "/logoutd.png";
     } else {
       document.body.classList.remove("dark");
-      imgQrIcon.src = "/qr-code.png";
       imgMoonIcon.src = "/moon.png";
       imgLogoutIcon.src = "/logout.png";
     }

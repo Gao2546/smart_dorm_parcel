@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function renderTracking(tracks) {
     const list = tracks
-      .map(t => `<li>${t.tracking_number} - ${t.status} (User: ${t.username}, Dorm: ${t.dorm_number})</li>`)
+      .map(t => `<li>${t.tracking_number} <br> - <br> ${t.status} (User: ${t.username}, Dorm: ${t.dorm_number})</li>`)
       .join("");
     document.getElementById("tracking-list").innerHTML = `<ul>${list}</ul>`;
   }

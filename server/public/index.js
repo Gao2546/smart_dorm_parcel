@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector(".tracking-form");
   const input = form.querySelector('input[name="number"]');
-  const trackingList = document.querySelector(".muted");
+  const trackingList = document.querySelector(".mutedI");
   const logoutButton = document.getElementById("logout-button");
   const toggleDarkButton = document.getElementById("toggle-dark");
   const imgMoonIcon = document.getElementById("moon-icon");
