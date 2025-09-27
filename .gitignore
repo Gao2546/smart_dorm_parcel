@@ -29,3 +29,6 @@ tmp/
 # Python env
 venv/
 __pycache__/
+
+certs/
+*.pem
