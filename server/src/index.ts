@@ -314,50 +314,50 @@ app.post("/tracking/status/update" , async (req, res) => {
 });
 
 
-// Call Python QR service
-async function callPythonReadQR(): Promise<{ qr_text: string }> {
-  const res = await fetch(path.join(process.env.QR_SERVER || "http://localhost:5000", "readQR"), {
-    method: "POST",
-  });
-  if (!res.ok) throw new Error(`Python server error: ${res.statusText}`);
-  return (await res.json()) as { qr_text: string }; // { qr_text: "..." }
-}
+// // Call Python QR service
+// async function callPythonReadQR(): Promise<{ qr_text: string }> {
+//   const res = await fetch(path.join(process.env.QR_SERVER || "http://localhost:5000", "readQR"), {
+//     method: "POST",
+//   });
+//   if (!res.ok) throw new Error(`Python server error: ${res.statusText}`);
+//   return (await res.json()) as { qr_text: string }; // { qr_text: "..." }
+// }
 
-app.post("/readQR", async (req, res) => {
-  try {
-    const { qr_text } = await callPythonReadQR();
+// app.post("/readQR", async (req, res) => {
+//   try {
+//     const { qr_text } = await callPythonReadQR();
 
-    let mapped_label : number;
-    if (qr_text && qr_text !== "No QR code detected") {
-      const status = await getTrackingStatus(qr_text);
-      if (status) {
-        await updateTrackingStatus(qr_text, "scanned");
+//     let mapped_label : number;
+//     if (qr_text && qr_text !== "No QR code detected") {
+//       const status = await getTrackingStatus(qr_text);
+//       if (status) {
+//         await updateTrackingStatus(qr_text, "scanned");
 
-        const dormInfo = await getDormInfoByTrackingNumber(qr_text);
-        if (dormInfo) {
-          mapped_label = parseInt(dormInfo.dorm_number);
-        }
-        else{
-          mapped_label = -1;
-        }
-      }
-      else{
-        mapped_label = -1;
-      }
-    } else{
-      mapped_label = -2;
-    }
+//         const dormInfo = await getDormInfoByTrackingNumber(qr_text);
+//         if (dormInfo) {
+//           mapped_label = parseInt(dormInfo.dorm_number);
+//         }
+//         else{
+//           mapped_label = -1;
+//         }
+//       }
+//       else{
+//         mapped_label = -1;
+//       }
+//     } else{
+//       mapped_label = -2;
+//     }
 
-    res.json({
-      message: "QR read successfully!",
-      qr_text,
-      mapped_label,
-    });
-  } catch (err: any) {
-    console.error("Error:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
+//     res.json({
+//       message: "QR read successfully!",
+//       qr_text,
+//       mapped_label,
+//     });
+//   } catch (err: any) {
+//     console.error("Error:", err);
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 
 app.get("/admin", requireAdmin, async (req, res) => {
