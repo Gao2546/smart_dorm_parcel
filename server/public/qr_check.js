@@ -8,53 +8,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const imgLogoutIcon = document.getElementById("logout-icon");
 
   // === APPLY DARK MODE ===
-    function applyDarkMode(enabled) {
+  function applyDarkMode(enabled) {
     if (enabled) {
       document.body.classList.add("dark");
-      imgMoonIcon.src = "/moond.png";
-      imgLogoutIcon.src = "/logoutd.png";
+      if (imgMoonIcon) imgMoonIcon.src = "/moond.png";
+      if (imgLogoutIcon) imgLogoutIcon.src = "/logoutd.png";
     } else {
       document.body.classList.remove("dark");
-      imgMoonIcon.src = "/moon.png";
-      imgLogoutIcon.src = "/logout.png";
+      if (imgMoonIcon) imgMoonIcon.src = "/moon.png";
+      if (imgLogoutIcon) imgLogoutIcon.src = "/logout.png";
     }
   }
 
-  // === FETCH USER ===
-//   async function fetchUser() {
-//   try {
-//     const res = await fetch("/me");
-//     if (res.redirected) {
-//       window.location.href = res.url;
-//       return;
-//     }
-//     if (res.ok) {
-//       const data = await res.json();
-//       userId = data.user.id;
-
-//       // ✅ แสดงเลขหอพัก
-//       const dormElement = document.createElement("p");
-//       dormElement.textContent = `🏠 Dorm Number: ${data.user.dorm}`;
-//       document.querySelector(".header").appendChild(dormElement);
-
-//       await loadDarkMode();
-//     }
-//   } catch (err) {
-//     console.error("Could not fetch user:", err);
-//   }
-// }
-
   // === LOGOUT ===
-  logoutButton.addEventListener("click", async () => {
-    try {
-      const res = await fetch("/logout", { method: "POST" });
-      if (res.ok) {
-        window.location.href = "/login";
+  if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+      try {
+        const res = await fetch("/logout", { method: "POST" });
+        if (res.ok) {
+          window.location.href = "/login";
+        }
+      } catch (err) {
+        console.error("Logout failed:", err);
       }
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  });
+    });
+  }
 
   // === TOGGLE DARK MODE ===
   if (toggleDarkButton) {
@@ -89,16 +67,44 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // === Manual Tracking Check ===
-  checkButton.addEventListener("click", () => {
-    const trackingNumber = trackingInput.value.trim();
-    if (!trackingNumber) {
-      resultDiv.textContent = "⚠ Please enter tracking number.";
-      return;
-    }
-    checkTracking(trackingNumber);
-  });
+  if (checkButton && trackingInput && resultDiv) {
+    checkButton.addEventListener("click", () => {
+      console.log("Check button clicked"); // Debug log
+      const trackingNumber = trackingInput.value.trim();
+      if (!trackingNumber) {
+        resultDiv.style.display = "block";
+        resultDiv.textContent = "⚠ Please enter tracking number.";
+        return;
+      }
+      checkTracking(trackingNumber);
+    });
+
+    // Also add Enter key support for the input field
+    trackingInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        checkButton.click();
+      }
+    });
+  } else {
+    console.error("Required elements not found:", {
+      checkButton: !!checkButton,
+      trackingInput: !!trackingInput,
+      resultDiv: !!resultDiv
+    });
+  }
 
   async function checkTracking(trackingNumber) {
+    console.log("Checking tracking:", trackingNumber); // Debug log
+    
+    if (!resultDiv) {
+      console.error("Result div not found");
+      return;
+    }
+
+    // Show loading state
+    resultDiv.style.display = "block";
+    resultDiv.textContent = "🔍 Checking...";
+
     try {
       const res = await fetch("/tracking/status", {
         method: "POST",
@@ -106,17 +112,23 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ trackingNumber })
       });
 
+      console.log("Response status:", res.status); // Debug log
+
       if (!res.ok) {
         const err = await res.json();
-        resultDiv.textContent = `❌ ${err.error}`;
+        resultDiv.textContent = `❌ ${err.error || 'Unknown error'}`;
         return;
       }
 
       const data = await res.json();
+      console.log("Response data:", data); // Debug log
+      
       resultDiv.style.display = "block";
       resultDiv.textContent =
         `✅ Tracking ${trackingNumber} → Status: ${data.status}, Dorm: ${data.dormInfo?.dorm_number || "N/A"}`;
     } catch (err) {
+      console.error("Tracking check error:", err);
+      resultDiv.style.display = "block";
       resultDiv.textContent = `❌ Error: ${err.message}`;
     }
   }
@@ -126,14 +138,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const stopScanBtn = document.getElementById("stop-scan");
   const video = document.getElementById("preview");
   const canvas = document.getElementById("qr-canvas");
-  const ctx = canvas.getContext("2d");
 
   let stream = null;
   let scanning = false;
 
-  startScanBtn.addEventListener("click", async () => {
-    try {
+  if (startScanBtn && video && canvas) {
+    const ctx = canvas.getContext("2d");
+
+    startScanBtn.addEventListener("click", async () => {
+      console.log("Start scan clicked"); // Debug log
       try {
+        try {
           stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: "environment" }   // กล้องหลัง
           });
@@ -141,44 +156,69 @@ document.addEventListener("DOMContentLoaded", () => {
           console.warn("Fallback to any camera:", e);
           stream = await navigator.mediaDevices.getUserMedia({ video: true });
         }
-      video.srcObject = stream;
-      scanning = true;
-      requestAnimationFrame(scanLoop);
-    } catch (err) {
-      console.error("Camera error:", err);
-      resultDiv.textContent = `❌ Camera error: ${err.message}`;
-    }
-  });
-
-  stopScanBtn.addEventListener("click", () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      stream = null;
-    }
-    scanning = false;
-    console.log("QR scanning stopped.");
-  });
-
-  function scanLoop() {
-    if (!scanning) return;
-
-    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-      if (code) {
-        resultDiv.textContent = `Scanned: ${code.data}`;
-        checkTracking(code.data);
-        scanning = false;
-        stopScanBtn.click(); // ปิดกล้องอัตโนมัติหลังเจอ QR
-        return;
+        video.srcObject = stream;
+        scanning = true;
+        requestAnimationFrame(scanLoop);
+      } catch (err) {
+        console.error("Camera error:", err);
+        if (resultDiv) {
+          resultDiv.style.display = "block";
+          resultDiv.textContent = `❌ Camera error: ${err.message}`;
+        }
       }
+    });
+
+    if (stopScanBtn) {
+      stopScanBtn.addEventListener("click", () => {
+        console.log("Stop scan clicked"); // Debug log
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          stream = null;
+        }
+        scanning = false;
+        console.log("QR scanning stopped.");
+      });
     }
-    requestAnimationFrame(scanLoop);
+
+    function scanLoop() {
+      if (!scanning) return;
+
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        
+        // Check if jsQR is available
+        if (typeof jsQR !== 'undefined') {
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+          if (code) {
+            console.log("QR code detected:", code.data); // Debug log
+            if (resultDiv) {
+              resultDiv.style.display = "block";
+              resultDiv.textContent = `Scanned: ${code.data}`;
+            }
+            checkTracking(code.data);
+            scanning = false;
+            if (stopScanBtn) stopScanBtn.click(); // ปิดกล้องอัตโนมัติหลังเจอ QR
+            return;
+          }
+        } else {
+          console.error("jsQR library not loaded");
+        }
+      }
+      requestAnimationFrame(scanLoop);
+    }
+  } else {
+    console.error("QR scan elements not found:", {
+      startScanBtn: !!startScanBtn,
+      video: !!video,
+      canvas: !!canvas
+    });
   }
+
+  // Initialize dark mode
   loadDarkMode();
 });
