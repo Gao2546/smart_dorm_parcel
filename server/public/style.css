@@ -30,6 +30,7 @@ body {
   margin: 0;
   padding: 1rem;
   overflow-y: hidden;
+  scrollbar-width: none;
 }
 
 /* Dark Mode Styles */
